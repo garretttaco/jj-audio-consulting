@@ -1,57 +1,59 @@
 # JJ Audio Consulting
 
-Static marketing site (`index.html`, a single self-contained bundle) plus one
-Cloudflare Pages Function that emails contact-form submissions via Resend.
+A Cloudflare **Worker with static assets**. The site is a single self-contained
+bundle (`public/index.html`); one Worker route emails contact-form submissions
+via Resend.
+
+    public/index.html      the site (prebuilt — nothing compiles it)
+    public/joel-console.jpg
+    src/index.js           routes /api/contact, serves everything else from assets
+    src/contact.js         validates the form and calls Resend
+    wrangler.jsonc         Worker + assets config
 
 ## How the form works
 
-`index.html` POSTs the form to `/api/contact`, which is served by
-`functions/api/contact.js`. That function validates the input and calls Resend.
-**The Resend API key lives only in the function's environment** — it is never
-shipped to the browser.
+`public/index.html` POSTs to `/api/contact`. Anything that isn't that path is
+served straight from `public/` by the assets binding. **The Resend API key lives
+only in the Worker's environment** — it is never shipped to the browser.
+
+## Deploying (Cloudflare Workers Builds)
+
+Connect the GitHub repo in the Cloudflare dashboard. There is no build step:
+
+| Setting | Value |
+| --- | --- |
+| Build command | *(leave empty)* |
+| Deploy command | `npx wrangler deploy` |
 
 ## Environment variables
 
-Set these in Cloudflare → Pages → the project → Settings → Environment variables.
+`CONTACT_TO` and `CONTACT_FROM` are declared in `wrangler.jsonc` and can be
+overridden in the dashboard. `RESEND_API_KEY` is a **secret** — set it under
+Workers → the project → Settings → Variables and Secrets. Never commit it.
 
-| Variable | Required | Notes |
-| --- | --- | --- |
-| `RESEND_API_KEY` | yes | From resend.com → API Keys. Secret — never commit it. |
-| `CONTACT_TO` | yes | Where submissions are delivered (Joel's inbox). |
-| `CONTACT_FROM` | no | Defaults to `onboarding@resend.dev`. See below. |
+| Variable | Notes |
+| --- | --- |
+| `RESEND_API_KEY` | Secret. From resend.com → API Keys. |
+| `CONTACT_TO` | Where submissions land. `info@jjaudioconsulting.com` is delivered by Cloudflare Email Routing, which forwards to Joel's real inbox. |
+| `CONTACT_FROM` | Must be on a Resend-verified domain. |
 
-### About `CONTACT_FROM`
+### Why `CONTACT_FROM` uses a subdomain
 
-Until `jjaudioconsulting.com` is verified in Resend, you must send from Resend's
-shared `onboarding@resend.dev` sender — and it can **only deliver to the email
-address that owns the Resend account**. So today, `CONTACT_TO` has to be that
-same address.
+Resend adds an `MX` record to whichever domain you verify. Verifying the apex
+would collide with the Email Routing `MX` that makes `info@` receive mail, so
+sending is verified on **`send.jjaudioconsulting.com`** instead. Sending and
+receiving then coexist.
 
-Once the domain is verified in Resend (add the DKIM/SPF DNS records it gives
-you), set:
-
-    CONTACT_FROM = JJ Audio Consulting <info@jjaudioconsulting.com>
-    CONTACT_TO   = info@jjaudioconsulting.com
-
-No code change is needed — both are read from the environment.
-
-Regardless of sender, `reply_to` is set to the visitor's address, so replying to
-a notification goes straight back to the person who filled out the form.
+`reply_to` is always the visitor's address, so replying to a notification goes
+straight back to whoever filled out the form.
 
 ## Local development
 
     npm install
-    cp .dev.vars.example .dev.vars   # then fill in a real key
-    npx wrangler pages dev .
-
-## Deploying
-
-Cloudflare Pages builds on push to `main`.
-
-- Build command: *(none — the site is prebuilt)*
-- Build output directory: `/`
+    cp .dev.vars.example .dev.vars   # then add a real key
+    npx wrangler dev
 
 ## Spam
 
-The form carries an off-screen honeypot field (`company`). Submissions that fill
+The form carries an off-screen honeypot field (`company`); submissions that fill
 it are silently dropped. If real spam gets through, add Cloudflare Turnstile.

@@ -1,0 +1,18 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "jj-audio-consulting",
+  "main": "src/index.js",
+  "compatibility_date": "2026-07-01",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS"
+  },
+  "vars": {
+    // Overridable in the dashboard. RESEND_API_KEY is a secret and is NOT set here.
+    "CONTACT_TO": "info@jjaudioconsulting.com",
+    "CONTACT_FROM": "JJ Audio Consulting <notifications@send.jjaudioconsulting.com>"
+  },
+  "observability": {
+    "enabled": true
+  }
+}

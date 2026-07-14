@@ -1,4 +1,4 @@
-// POST /api/contact — emails a contact-form submission to Joel via Resend.
+// Emails a contact-form submission to Joel via Resend.
 // The Resend key lives only in this Worker's env; it never reaches the browser.
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -12,7 +12,7 @@ const json = (body, status = 200) =>
 const esc = (str) =>
   String(str).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 
-export async function onRequestPost({ request, env }) {
+export async function handleContact(request, env) {
   let body;
   try {
     body = await request.json();
