@@ -7,10 +7,16 @@
     "directory": "./public",
     "binding": "ASSETS"
   },
+  // NOTE: `wrangler deploy` overwrites dashboard vars with whatever is here, so
+  // change these in this file — not in the dashboard. Secrets are NOT touched by
+  // deploys, which is why RESEND_API_KEY is set as a secret and is absent here.
   "vars": {
-    // Overridable in the dashboard. RESEND_API_KEY is a secret and is NOT set here.
-    "CONTACT_TO": "info@jjaudioconsulting.com",
-    "CONTACT_FROM": "JJ Audio Consulting <notifications@send.jjaudioconsulting.com>"
+    // Resend verified the apex domain, and its DKIM key signs for
+    // jjaudioconsulting.com — so the From address must be on the apex to satisfy
+    // the strict DMARC alignment (adkim=s) published on this domain.
+    "CONTACT_FROM": "JJ Audio Consulting <notifications@jjaudioconsulting.com>",
+    // TEMPORARY: Joel's real inbox isn't set up yet. Swap this once it is.
+    "CONTACT_TO": "garrett@10ex.dev"
   },
   "observability": {
     "enabled": true
