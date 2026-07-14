@@ -37,8 +37,16 @@ export async function handleContact(request, env) {
   }
 
   if (!env.RESEND_API_KEY || !env.CONTACT_TO) {
-    console.error('Missing RESEND_API_KEY or CONTACT_TO');
-    return json({ error: 'Email is not configured yet. Please email info@jjaudioconsulting.com.' }, 500);
+    // TEMPORARY diagnostic: report *which* binding is absent (never its value) so
+    // a misconfigured deploy is diagnosable from outside. Remove once verified.
+    const missing = [];
+    if (!env.RESEND_API_KEY) missing.push('RESEND_API_KEY');
+    if (!env.CONTACT_TO) missing.push('CONTACT_TO');
+    console.error('Missing bindings:', missing.join(', '));
+    return json(
+      { error: 'Email is not configured yet. Please email info@jjaudioconsulting.com.', missing },
+      500,
+    );
   }
 
   const rows = [
