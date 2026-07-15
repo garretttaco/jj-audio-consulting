@@ -15,8 +15,10 @@
     // jjaudioconsulting.com — so the From address must be on the apex to satisfy
     // the strict DMARC alignment (adkim=s) published on this domain.
     "CONTACT_FROM": "JJ Audio Consulting <notifications@jjaudioconsulting.com>",
-    // TEMPORARY: Joel's real inbox isn't set up yet. Swap this once it is.
-    "CONTACT_TO": "garrett@10ex.dev"
+    // Joel's inbox — also the address shown on the site.
+    "CONTACT_TO": "jjaudioconsulting@gmail.com",
+    // Monitoring copy so Garrett can confirm submissions are flowing.
+    "CONTACT_BCC": "garrett@10ex.dev"
   },
   "observability": {
     "enabled": true

@@ -38,7 +38,7 @@ export async function handleContact(request, env) {
 
   if (!env.RESEND_API_KEY || !env.CONTACT_TO) {
     console.error('Missing RESEND_API_KEY or CONTACT_TO');
-    return json({ error: 'Email is not configured yet. Please email info@jjaudioconsulting.com.' }, 500);
+    return json({ error: 'Email is not configured yet. Please email jjaudioconsulting@gmail.com.' }, 500);
   }
 
   const rows = [
@@ -85,6 +85,8 @@ export async function handleContact(request, env) {
     body: JSON.stringify({
       from: env.CONTACT_FROM || 'JJ Audio Consulting <onboarding@resend.dev>',
       to: [env.CONTACT_TO],
+      // Optional monitoring copy; omitted entirely when CONTACT_BCC is unset.
+      ...(env.CONTACT_BCC ? { bcc: [env.CONTACT_BCC] } : {}),
       reply_to: email, // so Joel can just hit Reply and land in the visitor's inbox
       subject: `New assessment request — ${name}${church ? ` (${church})` : ''}`,
       html,
@@ -94,7 +96,7 @@ export async function handleContact(request, env) {
 
   if (!res.ok) {
     console.error('Resend error', res.status, await res.text());
-    return json({ error: 'Could not send right now. Please email info@jjaudioconsulting.com.' }, 502);
+    return json({ error: 'Could not send right now. Please email jjaudioconsulting@gmail.com.' }, 502);
   }
 
   return json({ ok: true });
